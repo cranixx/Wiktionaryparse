@@ -30,15 +30,20 @@ $twig->parse($fhin);
 
 sub text_tag
 {
+    my ($t, $elem) = @_;
+
     my ($line,@lines,$title);
+
+    my $text = $elem->text;
+
     #Check, if given word belongs to the Polish language
-    if ($_->text =~ /^== .* \(\{\{język polski\}\}\) ==/)
+    if ($text =~ /^== .* \(\{\{język polski\}\}\) ==/)
     {
-            @lines = (split /\n/, $_->text);
+            @lines = (split /\n/, $text);
     }
     else
     {
-            return;
+            goto FREE;
     }
 
     $title = $lines[0];
@@ -85,5 +90,8 @@ sub text_tag
                 }
         }
     }
+
+    FREE: $t->purge;
+    return;
 }
 
