@@ -1,14 +1,38 @@
 #!/usr/bin/perl -w
 
-#TODO:Write code, wich will download a latest dump of wikitionary,
-#and decompress it to plaintex, command line args handling, also needed
-
 use strict;
 use warnings;
 use strict 'vars';
 
 use Data::Dumper;
 use XML::Twig;
+use Getopt::Long;
+
+my $help = '';
+my $output = '';
+my $word = '';
+
+GetOptions
+(
+    'help' => \$help,
+    'output=s' => \$output,
+    'word=s' => \$word
+);
+
+if ($help)
+{
+    &help;
+}
+
+unless ($word)
+{
+        &help;
+}
+
+unless ($output)
+{
+    $output = $word . ".csv";
+}
 
 # at most one div will be loaded in memory
 my $twig=XML::Twig->new(
@@ -22,7 +46,7 @@ $twig->parsefile( 'plwiktionary-latest-pages-articles.xml');
 
 sub text_tag
 {
-    open (POKREWNE,">>pokrewne.csv");
+    open (DATA,">>$output");
 	my ($line,@lines,$title);
 	#Check, if given word belongs to the Polish language
 	if ($_->text =~ /^== .* \(\{\{j.zyk polski\}\}\) ==/)
@@ -39,7 +63,7 @@ sub text_tag
     while (@lines)
     {
         $line = shift @lines;
-        if ($line =~ /pokrewne/)
+        if ($line =~ /$word/)
         {
                 $line = shift @lines;
                 while ($line =~ /^:/)
@@ -57,17 +81,25 @@ sub text_tag
                         $line =~ s/,\s*$//g;
                         if ($line)
                         {
-                            print POKREWNE $title . "," .$line . "\n";
+                            print DATA $title . "," .$line . "\n";
                         }
                         else
                         {
-                            print POKREWNE $title . "\n";
+                            print DATA $title . "\n";
                         }
                         $line = shift @lines;
                 }
         }
     }
 
-    close POKREWNE;
+    close DATA;
 }
 
+sub help
+{
+        print "Usage: wikitionaryparser.pl --word=\$word; It will extract content\
+of category '\$word' from description of Polish words to csv\n";
+        print "--output; Chagnes name of the file with data, default name is \$word\n";
+        print "--help; Shows this help\n";
+        die;
+}
