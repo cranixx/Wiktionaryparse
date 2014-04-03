@@ -5,10 +5,18 @@
 
 use strict;
 use warnings;
-use strict 'vars';
+
+use utf8;
+
+use Smart::Comments;
 
 use Data::Dumper;
 use XML::Twig;
+
+use IO::Pipe;
+
+my $fhin = IO::Pipe->new->reader(qw(bzip2 -c -d plwiktionary-latest-pages-articles.xml.bz2)) or die "Cannot pipe: $!";
+open my $fhout, '>:utf8', 'pokrewne.csv';
 
 # at most one div will be loaded in memory
 my $twig=XML::Twig->new(
@@ -18,24 +26,23 @@ twig_handlers =>
 },
 );
 
-$twig->parsefile( 'plwiktionary-latest-pages-articles.xml');
+$twig->parse($fhin);
 
 sub text_tag
 {
-    open (POKREWNE,">>pokrewne.csv");
-        my ($line,@lines,$title);
-        #Check, if given word belongs to the Polish language
-        if ($_->text =~ /^== .* \(\{\{j.zyk polski\}\}\) ==/)
-        {
-                @lines = (split /\n/, $_->text);
-        }
-
+    my ($line,@lines,$title);
+    #Check, if given word belongs to the Polish language
+    if ($_->text =~ /^== .* \(\{\{język polski\}\}\) ==/)
+    {
+            @lines = (split /\n/, $_->text);
+    }
     else
     {
             return;
     }
 
     $title = $lines[0];
+
     while (@lines)
     {
         $line = shift @lines;
@@ -47,27 +54,31 @@ sub text_tag
                         #Usunięcie niepotrzebnych znaków wokół słowa
                         $title =~ s/== //g;
                         $title =~ s/ ==//g;
-                        $title =~ s/\(\{\{j.zyk polski\}\}\)//;
+                        $title =~ s/\(\{\{język polski\}\}\)//;
                         $title =~ s/\s$//g;
+
+                        ### $title
 
                         $line =~ s/:\s*//g;
                         $line =~ s/\{\{.*\}\}//g;
                         $line =~ s/\[\[//g;
                         $line =~ s/\]\]/,/g;
                         $line =~ s/,\s*$//g;
+
+                        ### $line
+
                         if ($line)
                         {
-                            print POKREWNE $title . "," .$line . "\n";
+                            print $fhout $title . "," .$line . "\n";
                         }
                         else
                         {
-                            print POKREWNE $title . "\n";
+                            print $fhout $title . "\n";
                         }
+
                         $line = shift @lines;
                 }
         }
     }
-
-    close POKREWNE;
 }
 
