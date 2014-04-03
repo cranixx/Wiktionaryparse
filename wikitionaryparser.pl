@@ -86,14 +86,13 @@ sub text_tag
                 while ($line =~ /^:/)
                 {
                         #Usunięcie niepotrzebnych znaków wokół słowa
-                        $title =~ s/,/\\,/g;
                         $title =~ s/== //g;
                         $title =~ s/ ==//g;
                         $title =~ s/\(\{\{język polski\}\}\)//;
                         $title =~ s/\s$//g;
                         $title =~ s/^\s+//;
                         $title =~ s/\{\{.*?\}\}//g;
-                        $title =~ s/\[\[(.*?)\]\]//g;
+                        $title =~ s/\[\[(.*?)\]\]/$1/g;
 
                         $line =~ s/:\s*//g;
                         $line =~ s/,/\\,/g;
@@ -101,7 +100,7 @@ sub text_tag
                         $line =~ s/\[\[(.*?)\]\]/$1,/g;
                         $line =~ s/,+\s*/,/g;
                         $line =~ s/,\s*$//g;
-                        $line =~ s/,\/,/,/g;
+                        # $line =~ s/,\/,/,/g;
                         $line =~ s/,,+/,/g;
                         $line =~ s/''.*?''//g;
                         $line =~ s/^\s+//;
