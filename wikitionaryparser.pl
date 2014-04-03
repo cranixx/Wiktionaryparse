@@ -46,7 +46,7 @@ sub text_tag
     while (@lines)
     {
         $line = shift @lines;
-        if ($line =~ /pokrewne/)
+        if ($line =~ /^\{\{pokrewne\}\}/)
         {
                 $line = shift @lines;
                 while ($line =~ /^:/)
@@ -56,14 +56,19 @@ sub text_tag
                         $title =~ s/ ==//g;
                         $title =~ s/\(\{\{język polski\}\}\)//;
                         $title =~ s/\s$//g;
+                        $title =~ s/^\s+//;
 
                         ### $title
 
                         $line =~ s/:\s*//g;
-                        $line =~ s/\{\{.*\}\}//g;
-                        $line =~ s/\[\[//g;
-                        $line =~ s/\]\]/,/g;
+                        $line =~ s/\{\{.*?\}\}//g;
+                        $line =~ s/\[\[(.*?)\]\]/$1,/g;
+                        $line =~ s/,+\s*/,/g;
                         $line =~ s/,\s*$//g;
+                        $line =~ s/,\/,/,/g;
+                        $line =~ s/,,+/,/g;
+                        $line =~ s/''.*?''//g;
+                        $line =~ s/^\s+//;
 
                         ### $line
 
