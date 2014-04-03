@@ -14,7 +14,7 @@ use XML::Twig;
 my $twig=XML::Twig->new(
 twig_handlers =>
 {
-	text => \&text_tag,          # process list elements
+        text => \&text_tag,          # process list elements
 },
 );
 
@@ -23,18 +23,18 @@ $twig->parsefile( 'plwiktionary-latest-pages-articles.xml');
 sub text_tag
 {
     open (POKREWNE,">>pokrewne.csv");
-	my ($line,@lines,$title);
-	#Check, if given word belongs to the Polish language
-	if ($_->text =~ /^== .* \(\{\{j.zyk polski\}\}\) ==/)
-	{
- 		@lines = (split /\n/, $_->text);
-	}
-    
-    else 
+        my ($line,@lines,$title);
+        #Check, if given word belongs to the Polish language
+        if ($_->text =~ /^== .* \(\{\{j.zyk polski\}\}\) ==/)
+        {
+                @lines = (split /\n/, $_->text);
+        }
+
+    else
     {
             return;
     }
-    
+
     $title = $lines[0];
     while (@lines)
     {
@@ -49,7 +49,7 @@ sub text_tag
                         $title =~ s/ ==//g;
                         $title =~ s/\(\{\{j.zyk polski\}\}\)//;
                         $title =~ s/\s$//g;
-                        
+
                         $line =~ s/:\s*//g;
                         $line =~ s/\{\{.*\}\}//g;
                         $line =~ s/\[\[//g;
