@@ -93,7 +93,6 @@ sub text_tag
                         $title =~ s/^\s+//;
                         $title =~ s/\{\{.*?\}\}//g;
                         $title =~ s/\[\[(.*?)\]\]//g;
-                        ### $title
 
                         $line =~ s/:\s*//g;
                         $line =~ s/\{\{.*?\}\}//g;
@@ -106,15 +105,14 @@ sub text_tag
                         $line =~ s/^\s+//;
                         $line =~ s/\(.*\)//g;
                         $line =~ s/\{\{//g;
-                        ### $line
                         
                         if ($line)
                         {
-                            #print $fhout $title . "," .$line . "\n";
+                            print $fhout $title . "," .$line . "\n";
                         }
                         else
                         {
-                            #print $fhout $title . "\n";
+                            print $fhout $title . "\n";
                         }
 
                         $line = shift @lines;
