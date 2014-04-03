@@ -110,11 +110,11 @@ sub text_tag
 
                         if ($line)
                         {
-#                            print $fhout $title . "," .$line . "\n";
+                            print $fhout $title . "," .$line . "\n";
                         }
                         else
                         {
-#                            print $fhout $title . "\n";
+                            print $fhout $title . "\n";
                         }
 
                         $line = shift @lines;
