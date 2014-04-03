@@ -86,6 +86,7 @@ sub text_tag
                 while ($line =~ /^:/)
                 {
                         #Usunięcie niepotrzebnych znaków wokół słowa
+                        $title =~ s/,/\\,/g;
                         $title =~ s/== //g;
                         $title =~ s/ ==//g;
                         $title =~ s/\(\{\{język polski\}\}\)//;
@@ -95,6 +96,7 @@ sub text_tag
                         $title =~ s/\[\[(.*?)\]\]//g;
 
                         $line =~ s/:\s*//g;
+                        $line =~ s/,/\\,/g;
                         $line =~ s/\{\{.*?\}\}//g;
                         $line =~ s/\[\[(.*?)\]\]/$1,/g;
                         $line =~ s/,+\s*/,/g;
@@ -105,14 +107,14 @@ sub text_tag
                         $line =~ s/^\s+//;
                         $line =~ s/\(.*\)//g;
                         $line =~ s/\{\{//g;
-                        
+
                         if ($line)
                         {
-                            print $fhout $title . "," .$line . "\n";
+#                            print $fhout $title . "," .$line . "\n";
                         }
                         else
                         {
-                            print $fhout $title . "\n";
+#                            print $fhout $title . "\n";
                         }
 
                         $line = shift @lines;
