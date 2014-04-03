@@ -2,11 +2,14 @@
 
 use strict;
 use warnings;
-use strict 'vars';
 
-use Data::Dumper;
+use utf8;
+
+use Smart::Comments;
+
 use XML::Twig;
 use Getopt::Long;
+use LWP::Simple;
 
 my $help = '';
 my $output = '';
@@ -34,36 +37,50 @@ unless ($output)
     $output = $word . ".csv";
 }
 
+use IO::Pipe;
+
+unless (-e "plwiktionary-latest-pages-articles.xml.bz2")
+{
+    getstore ("http://dumps.wikimedia.org/plwiktionary/latest/plwiktionary-latest-pages-articles.xml.bz2","plwiktionary-latest-pages-articles.xml.bz2");
+}
+
+my $fhin = IO::Pipe->new->reader(qw(bzip2 -c -d plwiktionary-latest-pages-articles.xml.bz2)) or die "Cannot pipe: $!";
+open my $fhout, '>:utf8', "$output";
+
 # at most one div will be loaded in memory
 my $twig=XML::Twig->new(
 twig_handlers =>
 {
-	text => \&text_tag,          # process list elements
+        text => \&text_tag,          # process list elements
 },
 );
 
-$twig->parsefile( 'plwiktionary-latest-pages-articles.xml');
+$twig->parse($fhin);
 
 sub text_tag
 {
-    open (DATA,">>$output");
-	my ($line,@lines,$title);
-	#Check, if given word belongs to the Polish language
-	if ($_->text =~ /^== .* \(\{\{j.zyk polski\}\}\) ==/)
-	{
- 		@lines = (split /\n/, $_->text);
-	}
-    
-    else 
+    my ($t, $elem) = @_;
+
+    my ($line,@lines,$title);
+
+    my $text = $elem->text;
+
+    #Check, if given word belongs to the Polish language
+    if ($text =~ /^== .* \(\{\{język polski\}\}\) ==/)
     {
-            return;
+            @lines = (split /\n/, $text);
     }
-    
+    else
+    {
+            goto FREE;
+    }
+
     $title = $lines[0];
+
     while (@lines)
     {
         $line = shift @lines;
-        if ($line =~ /$word/)
+        if ($line =~ /^\{\{$word\}\}/)
         {
                 $line = shift @lines;
                 while ($line =~ /^:/)
@@ -71,28 +88,42 @@ sub text_tag
                         #Usunięcie niepotrzebnych znaków wokół słowa
                         $title =~ s/== //g;
                         $title =~ s/ ==//g;
-                        $title =~ s/\(\{\{j.zyk polski\}\}\)//;
+                        $title =~ s/\(\{\{język polski\}\}\)//;
                         $title =~ s/\s$//g;
-                        
+                        $title =~ s/^\s+//;
+                        $title =~ s/\{\{.*?\}\}//g;
+                        $title =~ s/\[\[(.*?)\]\]//g;
+                        ### $title
+
                         $line =~ s/:\s*//g;
-                        $line =~ s/\{\{.*\}\}//g;
-                        $line =~ s/\[\[//g;
-                        $line =~ s/\]\]/,/g;
+                        $line =~ s/\{\{.*?\}\}//g;
+                        $line =~ s/\[\[(.*?)\]\]/$1,/g;
+                        $line =~ s/,+\s*/,/g;
                         $line =~ s/,\s*$//g;
+                        $line =~ s/,\/,/,/g;
+                        $line =~ s/,,+/,/g;
+                        $line =~ s/''.*?''//g;
+                        $line =~ s/^\s+//;
+                        $line =~ s/\(.*\)//g;
+                        $line =~ s/\{\{//g;
+                        ### $line
+                        
                         if ($line)
                         {
-                            print DATA $title . "," .$line . "\n";
+                            #print $fhout $title . "," .$line . "\n";
                         }
                         else
                         {
-                            print DATA $title . "\n";
+                            #print $fhout $title . "\n";
                         }
+
                         $line = shift @lines;
                 }
         }
     }
 
-    close DATA;
+    FREE: $t->purge;
+    return;
 }
 
 sub help
