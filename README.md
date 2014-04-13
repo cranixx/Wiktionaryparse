@@ -1,15 +1,9 @@
 Wikitionaryparse
 ================
 
-Parser for dump of Wikitionary base.
-This script automaticly downloads file whith data,
-from https://dumps.wikimedia.org/plwiktionary
-if there is no such file in current directory.
+Skrypt wypisuje wyrazy pokrewne, z bazy słownika Wiktionary
+(https://dumps.wikimedia.org/plwiktionary/latest/plwiktionary-latest-pages-articles.xml.bz2).
+Skrypt automatycznie rozpakowuje archiwum bzip2 znajdujące się w tym samym co on katalogu,
+i generuje plik pokrewrewne.csv z wyrazami pokrewnymi w formacie CSV.
 
-Usage:
-wikitionaryparse.pl --help shows help message.
-wikitionaryparse.pl --word $word genereates file with $word attribute
-of all Polish words in datafile.
-wikitionaryparse.pl --output sets alternative name of output file.
-Default name is $word.csv
 
