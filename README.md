@@ -3,6 +3,7 @@ Wikitionaryparse
 
 Parser for dump of Wikitionary base.
 This script automaticly downloads file whith data,
+from https://dumps.wikimedia.org/plwiktionary
 if there is no such file in current directory.
 
 Usage:
